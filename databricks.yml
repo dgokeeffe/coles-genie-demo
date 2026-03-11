@@ -7,28 +7,17 @@ variables:
   schema:
     default: coles_genie_demo
 
-resources:
-  pipelines:
-    abs_retail_pipeline:
-      name: abs-retail-${bundle.target}
-      catalog: ${var.catalog}
-      schema: ${var.schema}
-      serverless: true
-      channel: CURRENT
-      libraries:
-        - notebook:
-            path: src/bronze_ingest.py
-        - notebook:
-            path: src/silver_transform.py
-        - notebook:
-            path: src/gold_analytics.py
+include:
+  - resources/*.yml
 
 targets:
   dev:
     mode: development
     default: true
+    workspace:
+      profile: daveok
     variables:
-      catalog: david_okeeffe
+      catalog: daveok
       schema: coles_genie_demo
 
   prod:

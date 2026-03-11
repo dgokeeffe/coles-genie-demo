@@ -1,0 +1,21 @@
+resources:
+  pipelines:
+    abs_retail_pipeline:
+      name: abs-retail-${bundle.target}
+      catalog: ${var.catalog}
+      schema: ${var.schema}
+      serverless: true
+      channel: CURRENT
+      libraries:
+        - notebook:
+            path: ../src/bronze/abs_retail_trade.py
+        - notebook:
+            path: ../src/bronze/abs_cpi_food.py
+        - notebook:
+            path: ../src/silver/retail_turnover.py
+        - notebook:
+            path: ../src/silver/food_price_index.py
+        - notebook:
+            path: ../src/gold/retail_summary.py
+        - notebook:
+            path: ../src/gold/food_inflation.py

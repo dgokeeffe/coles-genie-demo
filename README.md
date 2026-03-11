@@ -1,17 +1,36 @@
 # Coles Genie Demo
 
-Lakeflow Declarative Pipeline that ingests Australian Bureau of Statistics (ABS) retail and CPI data for use with Databricks Genie.
+Databricks Asset Bundle project that ingests Australian Bureau of Statistics (ABS)
+retail and CPI data via Lakeflow Declarative Pipelines for use with Databricks Genie.
+
+## Project structure
+
+```
+├── databricks.yml                  # Bundle configuration
+├── resources/
+│   └── abs_retail_pipeline.yml     # Pipeline resource definition
+└── src/
+    ├── bronze/                     # Raw ingestion from ABS SDMX APIs
+    │   ├── abs_retail_trade.py
+    │   └── abs_cpi_food.py
+    ├── silver/                     # Cleaned and enriched tables
+    │   ├── retail_turnover.py
+    │   └── food_price_index.py
+    └── gold/                       # Analytics-ready materialized views
+        ├── retail_summary.py
+        └── food_inflation.py
+```
 
 ## Pipeline layers
 
-| Layer | Table | Source |
-|-------|-------|--------|
-| Bronze | `abs_retail_trade_bronze` | ABS Retail Trade SDMX API - monthly turnover by state and industry |
-| Bronze | `abs_cpi_food_bronze` | ABS CPI SDMX API - quarterly food price index by state |
-| Silver | `retail_turnover` | Cleaned retail data with human-readable state/industry names |
-| Silver | `food_price_index` | Cleaned CPI data with human-readable labels |
-| Gold | `retail_summary` | Monthly retail with 3-month/12-month rolling averages and YoY growth |
-| Gold | `food_inflation_yoy` | Year-over-year CPI change by food category and state |
+| Layer | Table | Type | Source |
+|-------|-------|------|--------|
+| Bronze | `abs_retail_trade_bronze` | Table | ABS Retail Trade SDMX API — monthly turnover by state and industry |
+| Bronze | `abs_cpi_food_bronze` | Table | ABS CPI SDMX API — quarterly food price index by state |
+| Silver | `retail_turnover` | Table | Cleaned retail data with human-readable state/industry names |
+| Silver | `food_price_index` | Table | Cleaned CPI data with human-readable labels |
+| Gold | `retail_summary` | Materialized View | Monthly retail with 3m/12m rolling averages and YoY growth |
+| Gold | `food_inflation_yoy` | Materialized View | Year-over-year CPI change by food category and state |
 
 ## Deployment
 

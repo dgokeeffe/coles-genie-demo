@@ -2,9 +2,9 @@
 
 # COMMAND ----------
 
-import dlt
+from pyspark import pipelines as dp
 from pyspark.sql import functions as F
-from pyspark.sql.functions import col, when, to_date, year, quarter, concat, lit
+from pyspark.sql.functions import col, when, lit
 
 # COMMAND ----------
 
@@ -17,15 +17,6 @@ STATE_MAP = {
     "6": "Tasmania",
     "7": "Northern Territory",
     "8": "Australian Capital Territory",
-}
-
-INDUSTRY_MAP = {
-    "20": "Food retailing",
-    "41": "Clothing, footwear and personal accessory retailing",
-    "42": "Department stores",
-    "43": "Household goods retailing",
-    "44": "Other retailing",
-    "45": "Cafes, restaurants and takeaway food services",
 }
 
 FOOD_CATEGORY_MAP = {
@@ -48,31 +39,14 @@ def _map_column(col_name, mapping):
 
 # COMMAND ----------
 
-@dlt.table(
-    name="retail_turnover",
-    comment="Monthly retail turnover by Australian state and industry, cleaned and enriched",
-)
-def retail_turnover():
-    df = dlt.read("abs_retail_trade_bronze")
-    return (
-        df.select(
-            _map_column("REGION", STATE_MAP).alias("state"),
-            _map_column("INDUSTRY", INDUSTRY_MAP).alias("industry"),
-            to_date(col("TIME_PERIOD"), "yyyy-MM").alias("month"),
-            col("OBS_VALUE").cast("double").alias("turnover_millions"),
-        )
-        .withColumn("year", year("month"))
-        .withColumn("quarter", quarter("month"))
-    )
-
-# COMMAND ----------
-
-@dlt.table(
+@dp.table(
     name="food_price_index",
     comment="Quarterly CPI food price index by Australian state and category",
 )
+@dp.expect("valid_state", "state IS NOT NULL")
+@dp.expect("valid_cpi", "cpi_index IS NOT NULL AND cpi_index > 0")
 def food_price_index():
-    df = dlt.read("abs_cpi_food_bronze")
+    df = dp.read("abs_cpi_food_bronze")
     return df.select(
         _map_column("REGION", STATE_MAP).alias("state"),
         _map_column("CPI_MEASURE", FOOD_CATEGORY_MAP).alias("food_category"),

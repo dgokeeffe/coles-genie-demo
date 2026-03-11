@@ -2,19 +2,18 @@
 
 # COMMAND ----------
 
-import dlt
-from pyspark.sql import functions as F
-from pyspark.sql.functions import col, sum, avg, lag, round
+from pyspark import pipelines as dp
+from pyspark.sql.functions import col, avg, lag, round
 from pyspark.sql.window import Window
 
 # COMMAND ----------
 
-@dlt.table(
+@dp.materialized_view(
     name="retail_summary",
-    comment="Monthly retail summary aggregated by state and industry with rolling averages",
+    comment="Monthly retail summary aggregated by state and industry with rolling averages and YoY growth",
 )
 def retail_summary():
-    df = dlt.read("retail_turnover")
+    df = dp.read("retail_turnover")
 
     window_3m = (
         Window.partitionBy("state", "industry")
@@ -50,35 +49,4 @@ def retail_summary():
             ),
         )
         .drop("turnover_12m_ago")
-    )
-
-# COMMAND ----------
-
-@dlt.table(
-    name="food_inflation_yoy",
-    comment="Year-over-year CPI change by food category and state",
-)
-def food_inflation_yoy():
-    df = dlt.read("food_price_index")
-
-    window_yoy = (
-        Window.partitionBy("state", "food_category")
-        .orderBy("quarter")
-    )
-
-    return (
-        df.withColumn(
-            "cpi_index_4q_ago",
-            lag("cpi_index", 4).over(window_yoy),
-        )
-        .withColumn(
-            "yoy_change_pct",
-            round(
-                (col("cpi_index") - col("cpi_index_4q_ago"))
-                / col("cpi_index_4q_ago")
-                * 100,
-                2,
-            ),
-        )
-        .drop("cpi_index_4q_ago")
     )
