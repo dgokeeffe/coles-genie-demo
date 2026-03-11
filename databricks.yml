@@ -1,0 +1,38 @@
+bundle:
+  name: coles-genie-demo
+
+variables:
+  catalog:
+    default: david_okeeffe
+  schema:
+    default: coles_genie_demo
+
+resources:
+  pipelines:
+    abs_retail_pipeline:
+      name: abs-retail-${bundle.target}
+      catalog: ${var.catalog}
+      schema: ${var.schema}
+      serverless: true
+      channel: CURRENT
+      libraries:
+        - notebook:
+            path: src/bronze_ingest.py
+        - notebook:
+            path: src/silver_transform.py
+        - notebook:
+            path: src/gold_analytics.py
+
+targets:
+  dev:
+    mode: development
+    default: true
+    variables:
+      catalog: david_okeeffe
+      schema: coles_genie_demo
+
+  prod:
+    mode: production
+    variables:
+      catalog: david_okeeffe
+      schema: coles_genie_demo_prod
