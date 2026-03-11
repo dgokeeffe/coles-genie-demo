@@ -10,8 +10,8 @@ import pandas as pd
 # COMMAND ----------
 
 ABS_CPI_FOOD_URL = (
-    "https://data.api.abs.gov.au/data/ABS,CPI,1.0.0/"
-    "1.10001.10+20.1+2+3+4+5+6+7+8.Q"
+    "https://data.api.abs.gov.au/data/ABS,CPI,2.0.0/"
+    "1.10001+20001.10.1+2+3+4+5+6+7+8.Q"
     "?format=csv&startPeriod=2010-Q1"
 )
 

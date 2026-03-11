@@ -11,7 +11,7 @@ import pandas as pd
 
 ABS_RETAIL_URL = (
     "https://data.api.abs.gov.au/data/ABS,RT,1.0.0/"
-    "1.20+41+42+43+44+45.1+2+3+4+5+6+7+8.M"
+    "M1.20+41+42+43+44+45.20.1+2+3+4+5+6+7+8.M"
     "?format=csv&startPeriod=2010-01"
 )
 

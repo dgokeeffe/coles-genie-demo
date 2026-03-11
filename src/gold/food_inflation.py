@@ -16,7 +16,7 @@ def food_inflation_yoy():
     df = dp.read("food_price_index")
 
     window_yoy = (
-        Window.partitionBy("state", "food_category")
+        Window.partitionBy("state", "index_category")
         .orderBy("quarter")
     )
 

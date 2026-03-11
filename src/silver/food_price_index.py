@@ -19,9 +19,9 @@ STATE_MAP = {
     "8": "Australian Capital Territory",
 }
 
-FOOD_CATEGORY_MAP = {
-    "10": "Food",
-    "20": "Non-food",
+INDEX_MAP = {
+    "10001": "All groups CPI",
+    "20001": "Food and non-alcoholic beverages",
 }
 
 # COMMAND ----------
@@ -49,7 +49,7 @@ def food_price_index():
     df = dp.read("abs_cpi_food_bronze")
     return df.select(
         _map_column("REGION", STATE_MAP).alias("state"),
-        _map_column("CPI_MEASURE", FOOD_CATEGORY_MAP).alias("food_category"),
+        _map_column("INDEX", INDEX_MAP).alias("index_category"),
         col("TIME_PERIOD").alias("quarter"),
         col("OBS_VALUE").cast("double").alias("cpi_index"),
     )
