@@ -4,20 +4,17 @@
 
 import dlt
 import requests
-import tempfile
-import os
-from pyspark.sql.types import *
+import io
+import pandas as pd
 
 # COMMAND ----------
 
-def _download_csv(url, filename):
-    """Download CSV from ABS API to a temp file and return the path."""
-    tmp_path = os.path.join(tempfile.gettempdir(), filename)
+def _fetch_csv_as_df(spark, url):
+    """Fetch CSV from ABS API and return a Spark DataFrame."""
     resp = requests.get(url, timeout=120)
     resp.raise_for_status()
-    with open(tmp_path, "w") as f:
-        f.write(resp.text)
-    return tmp_path
+    pdf = pd.read_csv(io.StringIO(resp.text))
+    return spark.createDataFrame(pdf)
 
 # COMMAND ----------
 
@@ -32,13 +29,7 @@ ABS_RETAIL_URL = (
     comment="ABS Retail Trade monthly turnover by state and industry, raw from SDMX API",
 )
 def abs_retail_trade_bronze():
-    tmp_path = _download_csv(ABS_RETAIL_URL, "abs_retail_trade.csv")
-    return (
-        spark.read.format("csv")
-        .option("header", "true")
-        .option("inferSchema", "true")
-        .load(f"file:{tmp_path}")
-    )
+    return _fetch_csv_as_df(spark, ABS_RETAIL_URL)
 
 # COMMAND ----------
 
@@ -53,10 +44,4 @@ ABS_CPI_FOOD_URL = (
     comment="ABS CPI food categories by state, quarterly, raw from SDMX API",
 )
 def abs_cpi_food_bronze():
-    tmp_path = _download_csv(ABS_CPI_FOOD_URL, "abs_cpi_food.csv")
-    return (
-        spark.read.format("csv")
-        .option("header", "true")
-        .option("inferSchema", "true")
-        .load(f"file:{tmp_path}")
-    )
+    return _fetch_csv_as_df(spark, ABS_CPI_FOOD_URL)
