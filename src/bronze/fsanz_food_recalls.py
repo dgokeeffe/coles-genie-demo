@@ -3,7 +3,8 @@
 # COMMAND ----------
 
 from pyspark import pipelines as dp
-from pyspark.sql.functions import col, input_file_name
+from pyspark.sql.functions import col
+from pyspark.sql.types import StructType, StructField, StringType
 
 # COMMAND ----------
 
@@ -20,8 +21,18 @@ VOLUME_PATH = f"/Volumes/{catalog}/{schema}/raw_data/fsanz_recalls"
 @dp.expect("valid_url", "url IS NOT NULL")
 @dp.expect("has_content", "full_text IS NOT NULL AND length(full_text) > 0")
 def fsanz_recalls_bronze():
+    recall_schema = StructType([
+        StructField("url", StringType()),
+        StructField("title", StringType()),
+        StructField("full_text", StringType()),
+        StructField("publication_date", StringType()),
+        StructField("error", StringType()),
+    ])
     return (
-        spark.read.option("pathGlobFilter", "[!_]*.json").json(VOLUME_PATH)
+        spark.read.option("multiLine", "true")
+        .option("pathGlobFilter", "[!_]*.json")
+        .schema(recall_schema)
+        .json(VOLUME_PATH)
         .filter(col("url").isNotNull())
-        .withColumn("source_file", input_file_name())
+        .withColumn("source_file", col("_metadata.file_path"))
     )
